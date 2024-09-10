@@ -67,4 +67,6 @@ router.post('/signin',async(req,res)=>{
 
 })
 
+router.put('/j')
+
 module.exports={router};
