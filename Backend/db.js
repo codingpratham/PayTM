@@ -1,4 +1,4 @@
-const mongoose=require('mongoose')
+const mongoose= require('mongoose')
 
 mongoose.connect("mongodb+srv://prathamkoranne11:Pratham@pratham.6apub.mongodb.net/")
 .then(()=>{

@@ -10,8 +10,8 @@ export const Users = () => {
     useEffect(() => {
         axios.get(`http://localhost:3000/api/v1/user/bulk?filter=${filter}`)
             .then(response => {
-                console.log(response.data.user); // Log user data to verify structure
-                setUsers(response.data.user || []); // Ensure users is always an array
+                console.log(response.data.user); 
+                setUsers(response.data.user || []); // 
             })
             .catch(error => {
                 console.error("Error fetching users:", error);
