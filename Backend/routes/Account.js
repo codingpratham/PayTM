@@ -1,52 +1,55 @@
+// backend/routes/account.js
 const express = require('express');
-const router= express.Router();
-const Account=require('../db')
-const mongoose = require('mongoose')
-const authMiddleware =require('../middleware');
+const authMiddleware  = require('../middleware');
+const { Account } = require('../db');
+const mongoose  = require('mongoose');
 
-router.get('/balance',authMiddleware,async function(req, res){
-    const account=await Account.FindOne({
-        userId:req.user._id
-    })
+const router = express.Router();
+
+router.get("/balance", authMiddleware, async (req, res) => {
+    const account = await Account.findOne({
+        userId: req.userId
+    });
 
     res.json({
-        balance:account.balance
+        balance: account.balance
     })
-})
+});
 
-router.post('/transfer',authMiddleware,async function(req, res){
-    const session=await mongoose.startSession()
-    session.startTransaction()
+router.post("/transfer", authMiddleware, async (req, res) => {
+    const session = await mongoose.startSession();
 
-    const {amount,to}=req.body
+    session.startTransaction();
+    const { amount, to } = req.body;
 
-    const account=await Account.FindOne({
-        userId:req.user._id
-    }).session(session)
+    // Fetch the accounts within the transaction
+    const account = await Account.findOne({ userId: req.userId }).session(session);
 
-    if(!account || account.balance<amount){
+    if (!account || account.balance < amount) {
+        await session.abortTransaction();
         return res.status(400).json({
-            msg:'Insufficient balance'
-        })
+            message: "Insufficient balance"
+        });
     }
 
-    const toAccount=await Account.FindOne({userId:to}).session(session)
+    const toAccount = await Account.findOne({ userId: to }).session(session);
 
-    if(!toAccount){
-        await session.abortTransaction()
-
+    if (!toAccount) {
+        await session.abortTransaction();
         return res.status(400).json({
-            msg:'Invalid recipient'
-        })
+            message: "Invalid account"
+        });
     }
 
-    await Account.updateOne({userId:req.userId},{$inc:{balance:-amount}}).session(session)
+    // Perform the transfer
+    await Account.updateOne({ userId: req.userId }, { $inc: { balance: -amount } }).session(session);
     await Account.updateOne({ userId: to }, { $inc: { balance: amount } }).session(session);
 
-    await session.commitTransaction()
+    // Commit the transaction
+    await session.commitTransaction();
     res.json({
-        msg:'Transfer successful'
-    })
-})
+        message: "Transfer successful"
+    });
+});
 
-module.exports=router
+module.exports = router;

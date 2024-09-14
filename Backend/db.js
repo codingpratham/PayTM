@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose=require('mongoose')
 
 mongoose.connect("mongodb+srv://prathamkoranne11:Pratham@pratham.6apub.mongodb.net/")
 .then(()=>{
@@ -14,8 +14,8 @@ mongoose.connect("mongodb+srv://prathamkoranne11:Pratham@pratham.6apub.mongodb.n
 const userScehma= new mongoose.Schema({
     username:String,
     password:String,
-    firstname:String,
-    lastname:String
+    firstName:String,
+    lastName:String
 })
 
 const User=mongoose.model('user',userScehma)
